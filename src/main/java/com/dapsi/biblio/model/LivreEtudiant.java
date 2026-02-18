@@ -1,25 +1,26 @@
 package com.dapsi.biblio.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Date;
 
 @Entity
-
-
+@Data
 public class LivreEtudiant {
-    @EmbeddedId
-    private LivreEtudiant id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId
     private Livre livre;
 
     @ManyToOne
-    @MapsId
     private Etudiant etudiant;
 
     public Date dateEmprunt;
+
+    @Column(nullable = true)
     private Date dateRetoure;
 
     @PrePersist
@@ -28,4 +29,5 @@ public class LivreEtudiant {
             dateEmprunt = new Date();
         }
     }
+
 }
