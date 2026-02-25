@@ -77,7 +77,7 @@ public class EtudiantController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
+//a
     @DeleteMapping("/deleteEtudiant/{id}")
     public ResponseEntity<Void> deleteEtudiant(@PathVariable Long id){
         try {
