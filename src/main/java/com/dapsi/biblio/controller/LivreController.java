@@ -3,7 +3,6 @@ package com.dapsi.biblio.controller;
 
 import com.dapsi.biblio.model.Livre;
 import com.dapsi.biblio.service.LivreService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -14,8 +13,11 @@ import java.util.Optional;
 @RestController
 public class LivreController {
 
-    @Autowired
-    private LivreService livreService;
+    private final LivreService livreService;
+
+    public LivreController(LivreService livreService) {
+        this.livreService = livreService;
+    }
 
     @PostMapping("/addLivre")
     public ResponseEntity<Livre> createLivre(@RequestBody Livre livre) {
