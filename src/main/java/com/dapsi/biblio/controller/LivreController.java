@@ -11,6 +11,7 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping("/api/livre")
 public class LivreController {
 
     private final LivreService livreService;
