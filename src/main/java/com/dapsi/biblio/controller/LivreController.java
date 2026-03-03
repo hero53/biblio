@@ -3,11 +3,11 @@ package com.dapsi.biblio.controller;
 
 import com.dapsi.biblio.model.Livre;
 import com.dapsi.biblio.service.LivreService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -20,35 +20,34 @@ public class LivreController {
     }
 
     @PostMapping("/addLivre")
-    public ResponseEntity<Livre> createLivre(@RequestBody Livre livre) {
-        Livre savedLivre = livreService.createLivre(livre);
-        return ResponseEntity.ok(savedLivre);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Livre createLivre(@RequestBody Livre livre) {
+        return livreService.createLivre(livre);
     }
 
     @PostMapping("/addListLivre")
-    public ResponseEntity<List<Livre>> addListLivre(@RequestBody List<Livre> livreList) {
-        List<Livre> savedLivres = livreService.addListLivre(livreList);
-        return ResponseEntity.ok(savedLivres);
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Livre> addListLivre(@RequestBody List<Livre> livreList) {
+        return livreService.addListLivre(livreList);
     }
 
     @GetMapping("/fetchLivre")
-    public ResponseEntity<List<Livre>>fetchLivre() {
-        List<Livre> lives = livreService.fetchLivre();
-        return ResponseEntity.ok(lives);
+    @ResponseStatus(HttpStatus.OK)
+    public List<Livre> fetchLivre() {
+        return livreService.fetchLivre();
     }
 
     @PutMapping("updateLivre/{id}")
-    public ResponseEntity<Livre> updateLivre(@PathVariable Long id, @RequestBody Livre livre) {
-        Livre savedLivre = livreService.updateLivre(id, livre);
-        return ResponseEntity.ok(savedLivre);
+    @ResponseStatus(HttpStatus.OK)
+    public Livre updateLivre(@PathVariable Long id, @RequestBody Livre livre) {
+        return livreService.updateLivre(id, livre);
     }
 
     @DeleteMapping("/deleteLivre/{id}")
-    public ResponseEntity<Livre> deleteLivre(@PathVariable Long id) {
-        Optional<Livre> deletedLivre = livreService.deleteLivre(id);
-        return deletedLivre
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @ResponseStatus(HttpStatus.OK)
+    public Livre deleteLivre(@PathVariable Long id) {
+        return livreService.deleteLivre(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livre not found"));
     }
 
 

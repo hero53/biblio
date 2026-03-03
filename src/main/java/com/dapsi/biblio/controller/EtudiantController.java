@@ -3,8 +3,8 @@ package com.dapsi.biblio.controller;
 import com.dapsi.biblio.model.Etudiant;
 import com.dapsi.biblio.service.EtudiantService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,68 +21,43 @@ public class EtudiantController {
     }
 
     @PostMapping("/addEtudiant")
-    public ResponseEntity<Etudiant> addEtudiant(@Valid @RequestBody Etudiant etudiant){
-        try {
-            Etudiant saveEtudiant = etudiantService.addEtudiant(etudiant);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saveEtudiant);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Etudiant addEtudiant(@Valid @RequestBody Etudiant etudiant){
+        return etudiantService.addEtudiant(etudiant);
     }
 
     @PostMapping("/addListEtudiant")
-    public ResponseEntity<List<Etudiant>> addListEtudiant(@Valid @RequestBody List<Etudiant> listEtudiant){
-        try {
-            List<Etudiant> savedEtudiants = etudiantService.addListEtudiant(listEtudiant);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedEtudiants);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Etudiant> addListEtudiant(@Valid @RequestBody List<Etudiant> listEtudiant){
+        return etudiantService.addListEtudiant(listEtudiant);
     }
 
     @GetMapping("/fetchEtudiant")
-    public ResponseEntity<List<Etudiant>> fetchEtudiant(){
-        try {
-            List<Etudiant> etudiants = etudiantService.fetchEtudiant();
-            return ResponseEntity.ok(etudiants);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public List<Etudiant> fetchEtudiant(){
+        return etudiantService.fetchEtudiant();
     }
 
     @PutMapping("/updateEtudiant/{id}")
-    public ResponseEntity<Etudiant> updateEtudiant(@PathVariable Long id, @Valid @RequestBody Etudiant etudiant){
-        try {
-            return etudiantService.updateEtudiant(id, etudiant)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public Etudiant updateEtudiant(@PathVariable Long id, @Valid @RequestBody Etudiant etudiant){
+        return etudiantService.updateEtudiant(id, etudiant)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Etudiant not found"));
     }
 
     @GetMapping("/findEtudiantByID/{id}")
-    public ResponseEntity<Etudiant> findEtudiantByID(@PathVariable Long id){
-        try {
-            return etudiantService.findEtudiantByID(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public Etudiant findEtudiantByID(@PathVariable Long id){
+        return etudiantService.findEtudiantByID(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Etudiant not found"));
     }
-//a
+
     @DeleteMapping("/deleteEtudiant/{id}")
-    public ResponseEntity<Void> deleteEtudiant(@PathVariable Long id){
-        try {
-            boolean deleted = etudiantService.deleteEtudiant(id);
-            if(deleted){
-                return ResponseEntity.noContent().build();
-            }else  {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEtudiant(@PathVariable Long id){
+        boolean deleted = etudiantService.deleteEtudiant(id);
+        if(!deleted){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Etudiant not found");
         }
     }
 }

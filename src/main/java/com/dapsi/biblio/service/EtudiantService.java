@@ -17,6 +17,7 @@ public class EtudiantService {
     }
 
     public Etudiant addEtudiant(Etudiant etudiant) {
+
         return etudiantRepository.save(etudiant);
     }
 
@@ -25,6 +26,7 @@ public class EtudiantService {
     }
 
     public List<Etudiant> fetchEtudiant() {
+
         return etudiantRepository.findAll();
     }
 
