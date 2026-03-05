@@ -3,6 +3,8 @@ package com.dapsi.biblio.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 
 @Entity
 @Data
@@ -14,4 +16,8 @@ public class Etudiant {
     private Long id;
     private String nom;
     private String prenom;
+
+    @OneToMany(mappedBy = "etudiant")
+    private List<Emprunt> emprunt;
+
 }

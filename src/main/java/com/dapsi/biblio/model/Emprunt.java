@@ -7,7 +7,8 @@ import java.util.Date;
 
 @Entity
 @Data
-public class LivreEtudiant {
+@Table(name = "LivreEtudiant")
+public class Emprunt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,45 +1,131 @@
 package com.dapsi.biblio.service;
 
+import com.dapsi.biblio.dto.LivreDTO;
+import com.dapsi.biblio.exception.ResourceNotFoundException;
+import com.dapsi.biblio.mapper.LivreMapper;
 import com.dapsi.biblio.model.Livre;
 import com.dapsi.biblio.repository.LivreRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Service métier pour la gestion des livres
+ * Contient la logique métier et utilise les DTOs pour communiquer avec le controller
+ * Utilise le mapper pour convertir entre entités et DTOs
+ */
 @Service
 public class LivreService {
 
     private final LivreRepository livreRepository;
+    private final LivreMapper livreMapper;
 
-    public LivreService(LivreRepository livreRepository) {
+    /**
+     * Constructeur avec injection de dépendances
+     * @param livreRepository Le repository pour accéder aux données
+     * @param livreMapper Le mapper pour convertir entités <-> DTOs
+     */
+    public LivreService(LivreRepository livreRepository, LivreMapper livreMapper) {
         this.livreRepository = livreRepository;
+        this.livreMapper = livreMapper;
     }
 
-    public Livre createLivre(Livre livre) {
-        return livreRepository.save(livre);
+    /**
+     * Crée un nouveau livre dans la base de données
+     * @param livreDTO Les données du livre à créer
+     * @return Le DTO du livre créé avec son ID généré
+     */
+    public LivreDTO createLivre(LivreDTO livreDTO) {
+        // Convertir DTO -> Entity
+        Livre livre = livreMapper.toEntity(livreDTO);
+
+        // Sauvegarder en base
+        Livre savedLivre = livreRepository.save(livre);
+
+        // Convertir Entity -> DTO et retourner
+        return livreMapper.toDTO(savedLivre);
     }
 
-    public List<Livre> addListLivre(List<Livre> livreList) {
-        return livreRepository.saveAll(livreList);
+    /**
+     * Ajoute plusieurs livres en une seule opération
+     * @param livreListDTO La liste des livres à créer
+     * @return La liste des livres créés avec leurs IDs générés
+     */
+    public List<LivreDTO> addListLivre(List<LivreDTO> livreListDTO) {
+        // Convertir la liste de DTOs en liste d'entités
+        List<Livre> livres = livreMapper.toEntityList(livreListDTO);
+
+        // Sauvegarder tous les livres
+        List<Livre> savedLivres = livreRepository.saveAll(livres);
+
+        // Convertir et retourner la liste de DTOs
+        return livreMapper.toDTOList(savedLivres);
     }
 
-    public List<Livre> fetchLivre() {
-        return livreRepository.findAll();
+    /**
+     * Récupère tous les livres de la base de données
+     * @return La liste de tous les livres sous forme de DTOs
+     */
+    public List<LivreDTO> fetchLivre() {
+        List<Livre> livres = livreRepository.findAll();
+        return livreMapper.toDTOList(livres);
     }
 
-    public Livre updateLivre(Long id, Livre livre) {
-        livre.setId(id);
-        return livreRepository.save(livre);
+    /**
+     * Met à jour les informations d'un livre existant
+     * @param id L'identifiant du livre à modifier
+     * @param livreDTO Les nouvelles données du livre
+     * @return Le DTO du livre mis à jour
+     * @throws ResourceNotFoundException Si le livre n'existe pas
+     */
+    public LivreDTO updateLivre(Long id, LivreDTO livreDTO) {
+        // Vérifier si le livre existe
+        Livre existingLivre = livreRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Livre avec l'ID " + id + " n'existe pas"));
+
+        // Mettre à jour les champs
+        existingLivre.setTitre(livreDTO.getTitre());
+        existingLivre.setAuteur(livreDTO.getAuteur());
+        existingLivre.setDescription(livreDTO.getDescription());
+        existingLivre.setDatePublication(livreDTO.getDatePublication());
+
+        // Sauvegarder et retourner
+        Livre updatedLivre = livreRepository.save(existingLivre);
+        return livreMapper.toDTO(updatedLivre);
     }
 
-    public Optional<Livre> deleteLivre(Long id) {
-        Optional<Livre> livre = livreRepository.findById(id);
-        livre.ifPresent(livreRepository::delete);
-        return livre;
+    /**
+     * Supprime un livre de la base de données et retourne ses données
+     * @param id L'identifiant du livre à supprimer
+     * @return Le DTO du livre supprimé
+     * @throws ResourceNotFoundException Si le livre n'existe pas
+     */
+    public LivreDTO deleteLivre(Long id) {
+        // Vérifier si le livre existe avant de le supprimer
+        Livre livre = livreRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Livre avec l'ID " + id + " n'existe pas"));
+
+        // Convertir en DTO avant suppression
+        LivreDTO livreDTO = livreMapper.toDTO(livre);
+
+        // Supprimer le livre
+        livreRepository.delete(livre);
+
+        // Retourner le DTO du livre supprimé
+        return livreDTO;
     }
 
-    public Optional<Livre> findById(Long id) {
-        return livreRepository.findById(id);
+    /**
+     * Recherche un livre par son identifiant
+     * @param id L'identifiant du livre recherché
+     * @return Le DTO du livre trouvé
+     * @throws ResourceNotFoundException Si le livre n'existe pas
+     */
+    public LivreDTO findById(Long id) {
+        Livre livre = livreRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Livre avec l'ID " + id + " n'existe pas"));
+
+        return livreMapper.toDTO(livre);
     }
 }
+
