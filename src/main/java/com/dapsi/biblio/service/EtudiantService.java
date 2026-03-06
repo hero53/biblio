@@ -7,6 +7,7 @@ import com.dapsi.biblio.model.Etudiant;
 import com.dapsi.biblio.repository.EtudiantRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -63,11 +64,11 @@ public class EtudiantService {
     }
 
     /**
-     * Récupère tous les étudiants de la base de données
-     * @return La liste de tous les étudiants sous forme de DTOs
+     * Récupère tous les étudiants non supprimés de la base de données
+     * @return La liste de tous les étudiants actifs sous forme de DTOs
      */
     public List<EtudiantDTO> fetchEtudiant() {
-        List<Etudiant> etudiants = etudiantRepository.findAll();
+        List<Etudiant> etudiants = etudiantRepository.findByIsDeletedFalseOrIsDeletedIsNull();
         return etudiantMapper.toDTOList(etudiants);
     }
 
@@ -76,11 +77,11 @@ public class EtudiantService {
      * @param id L'identifiant de l'étudiant à modifier
      * @param etudiantDTO Les nouvelles données de l'étudiant
      * @return Le DTO de l'étudiant mis à jour
-     * @throws ResourceNotFoundException Si l'étudiant n'existe pas
+     * @throws ResourceNotFoundException Si l'étudiant n'existe pas ou est supprimé
      */
     public EtudiantDTO updateEtudiant(Long id, EtudiantDTO etudiantDTO) {
-        // Vérifier si l'étudiant existe
-        Etudiant existingEtudiant = etudiantRepository.findById(id)
+        // Vérifier si l'étudiant existe et n'est pas supprimé
+        Etudiant existingEtudiant = etudiantRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Etudiant avec l'ID " + id + " n'existe pas"));
 
         // Mettre à jour les champs
@@ -96,26 +97,30 @@ public class EtudiantService {
      * Recherche un étudiant par son identifiant
      * @param id L'identifiant de l'étudiant recherché
      * @return Le DTO de l'étudiant trouvé
-     * @throws ResourceNotFoundException Si l'étudiant n'existe pas
+     * @throws ResourceNotFoundException Si l'étudiant n'existe pas ou est supprimé
      */
     public EtudiantDTO findEtudiantByID(Long id) {
-        Etudiant etudiant = etudiantRepository.findById(id)
+        Etudiant etudiant = etudiantRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Etudiant avec l'ID " + id + " n'existe pas"));
 
         return etudiantMapper.toDTO(etudiant);
     }
 
     /**
-     * Supprime un étudiant de la base de données
+     * Supprime logiquement un étudiant de la base de données
      * @param id L'identifiant de l'étudiant à supprimer
-     * @throws ResourceNotFoundException Si l'étudiant n'existe pas
+     * @throws ResourceNotFoundException Si l'étudiant n'existe pas ou est déjà supprimé
      */
     public void deleteEtudiant(Long id) {
-        // Vérifier si l'étudiant existe avant de le supprimer
-        Etudiant etudiant = etudiantRepository.findById(id)
+        // Vérifier si l'étudiant existe et n'est pas déjà supprimé
+        Etudiant etudiant = etudiantRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Etudiant avec l'ID " + id + " n'existe pas"));
 
-        // Supprimer l'étudiant
-        etudiantRepository.delete(etudiant);
+        // Suppression logique
+        etudiant.setIsDeleted(true);
+        etudiant.setDeletedAt(new Date());
+
+        // Sauvegarder les modifications
+        etudiantRepository.save(etudiant);
     }
 }

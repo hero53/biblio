@@ -7,6 +7,7 @@ import com.dapsi.biblio.model.Livre;
 import com.dapsi.biblio.repository.LivreRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -63,11 +64,11 @@ public class LivreService {
     }
 
     /**
-     * Récupère tous les livres de la base de données
-     * @return La liste de tous les livres sous forme de DTOs
+     * Récupère tous les livres non supprimés de la base de données
+     * @return La liste de tous les livres actifs sous forme de DTOs
      */
     public List<LivreDTO> fetchLivre() {
-        List<Livre> livres = livreRepository.findAll();
+        List<Livre> livres = livreRepository.findByIsDeletedFalseOrIsDeletedIsNull();
         return livreMapper.toDTOList(livres);
     }
 
@@ -76,11 +77,11 @@ public class LivreService {
      * @param id L'identifiant du livre à modifier
      * @param livreDTO Les nouvelles données du livre
      * @return Le DTO du livre mis à jour
-     * @throws ResourceNotFoundException Si le livre n'existe pas
+     * @throws ResourceNotFoundException Si le livre n'existe pas ou est supprimé
      */
     public LivreDTO updateLivre(Long id, LivreDTO livreDTO) {
-        // Vérifier si le livre existe
-        Livre existingLivre = livreRepository.findById(id)
+        // Vérifier si le livre existe et n'est pas supprimé
+        Livre existingLivre = livreRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Livre avec l'ID " + id + " n'existe pas"));
 
         // Mettre à jour les champs
@@ -95,34 +96,35 @@ public class LivreService {
     }
 
     /**
-     * Supprime un livre de la base de données et retourne ses données
+     * Supprime logiquement un livre de la base de données
      * @param id L'identifiant du livre à supprimer
      * @return Le DTO du livre supprimé
-     * @throws ResourceNotFoundException Si le livre n'existe pas
+     * @throws ResourceNotFoundException Si le livre n'existe pas ou est déjà supprimé
      */
     public LivreDTO deleteLivre(Long id) {
-        // Vérifier si le livre existe avant de le supprimer
-        Livre livre = livreRepository.findById(id)
+        // Vérifier si le livre existe et n'est pas déjà supprimé
+        Livre livre = livreRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Livre avec l'ID " + id + " n'existe pas"));
 
-        // Convertir en DTO avant suppression
-        LivreDTO livreDTO = livreMapper.toDTO(livre);
+        // Suppression logique
+        livre.setIsDeleted(true);
+        livre.setDeletedAt(new Date());
 
-        // Supprimer le livre
-        livreRepository.delete(livre);
+        // Sauvegarder les modifications
+        Livre deletedLivre = livreRepository.save(livre);
 
         // Retourner le DTO du livre supprimé
-        return livreDTO;
+        return livreMapper.toDTO(deletedLivre);
     }
 
     /**
      * Recherche un livre par son identifiant
      * @param id L'identifiant du livre recherché
      * @return Le DTO du livre trouvé
-     * @throws ResourceNotFoundException Si le livre n'existe pas
+     * @throws ResourceNotFoundException Si le livre n'existe pas ou est supprimé
      */
     public LivreDTO findById(Long id) {
-        Livre livre = livreRepository.findById(id)
+        Livre livre = livreRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Livre avec l'ID " + id + " n'existe pas"));
 
         return livreMapper.toDTO(livre);
