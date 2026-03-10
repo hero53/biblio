@@ -4,6 +4,7 @@ import com.dapsi.biblio.model.Emprunt;
 import com.dapsi.biblio.repository.EtudiantRepository;
 import com.dapsi.biblio.repository.EmpruntRepository;
 import com.dapsi.biblio.repository.LivreRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,19 +22,14 @@ public class EmpruntController {
     @Autowired
     private EtudiantRepository etudiantRepository;
 
-//    @PostMapping("/doEmprun")
-//    public ResponseEntity<Emprunt> doEmprun(@RequestBody EmpruntRequest request) {
-//        Livre livre = livreRepository.findById(request.getLivreId())
-//                .orElseThrow(() -> new RuntimeException("Livre introuvable"));
-//
-//        Etudiant etudiant = etudiantRepository.findById(request.getEtudiantId())
-//                .orElseThrow(() -> new RuntimeException("Etudiant introuvable"));
-//
-//        Emprunt emprunt = new Emprunt();
-//        emprunt.setLivre(livre);
-//        emprunt.setEtudiant(etudiant);
-//        return ResponseEntity.ok(empruntRepository.save(emprunt));
-//    }
+    @PostMapping("")
+    public String addEmprunt() {
+
+        return "ok";
+    }
+
+
+
 
     @GetMapping("/emprunts")
     public List<Emprunt> getAll() {

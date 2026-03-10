@@ -15,9 +15,17 @@ public class Livre extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(nullable = false)
     private String titre;
+
+    @Column(nullable = false)
     private String auteur;
+
+    @Column(nullable = true)
     private String description;
+
+    @Column(nullable = false)
     private Date datePublication;
 
     @OneToMany(mappedBy = "livre")

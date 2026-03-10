@@ -52,6 +52,30 @@ public class LivreDTO {
     @NotNull(message = "La date de publication est obligatoire")
     private Date datePublication;
 
+    /**
+     * Date de création du livre
+     * Géré automatiquement par le système
+     */
+    private Date createdAt;
+
+    /**
+     * Date de dernière modification du livre
+     * Géré automatiquement par le système
+     */
+    private Date updatedAt;
+
+    /**
+     * Date de suppression logique du livre
+     * Null si le livre n'est pas supprimé
+     */
+    private Date deletedAt;
+
+    /**
+     * Indicateur de suppression logique
+     * False ou null si le livre est actif
+     */
+    private Boolean isDeleted;
+
     // Note : On n'expose pas la liste des emprunts dans le DTO pour éviter les références circulaires
     // et pour ne pas surcharger les réponses API
 }

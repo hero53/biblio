@@ -32,12 +32,20 @@ public class EtudiantMapper {
         dto.setNom(etudiant.getNom());
         dto.setPrenom(etudiant.getPrenom());
 
+        // Mapping des champs du BaseEntity
+        dto.setCreatedAt(etudiant.getCreatedAt());
+        dto.setUpdatedAt(etudiant.getUpdatedAt());
+        dto.setDeletedAt(etudiant.getDeletedAt());
+        dto.setIsDeleted(etudiant.getIsDeleted());
+
         return dto;
     }
 
     /**
      * Convertit un EtudiantDTO en entité Etudiant
      * Utilisé pour les requêtes entrantes (DTO -> Entity)
+     * Note: Les champs du BaseEntity (createdAt, updatedAt, deletedAt, isDeleted)
+     * ne sont pas mappés car ils sont gérés automatiquement par le système
      *
      * @param dto Le DTO à convertir
      * @return L'entité Etudiant correspondante, ou null si le DTO est null

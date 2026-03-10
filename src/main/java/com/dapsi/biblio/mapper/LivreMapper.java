@@ -34,12 +34,20 @@ public class LivreMapper {
         dto.setDescription(livre.getDescription());
         dto.setDatePublication(livre.getDatePublication());
 
+        // Mapping des champs du BaseEntity
+        dto.setCreatedAt(livre.getCreatedAt());
+        dto.setUpdatedAt(livre.getUpdatedAt());
+        dto.setDeletedAt(livre.getDeletedAt());
+        dto.setIsDeleted(livre.getIsDeleted());
+
         return dto;
     }
 
     /**
      * Convertit un LivreDTO en entité Livre
      * Utilisé pour les requêtes entrantes (DTO -> Entity)
+     * Note: Les champs du BaseEntity (createdAt, updatedAt, deletedAt, isDeleted)
+     * ne sont pas mappés car ils sont gérés automatiquement par le système
      *
      * @param dto Le DTO à convertir
      * @return L'entité Livre correspondante, ou null si le DTO est null
